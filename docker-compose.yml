@@ -8,7 +8,6 @@ services:
       - "8000:8000"
     depends_on:
       - db
-      - redis
     env_file:
       - .env
     volumes:
@@ -23,9 +22,5 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
 volumes:
   pgdata:
