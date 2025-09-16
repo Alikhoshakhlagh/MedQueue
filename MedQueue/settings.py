@@ -39,12 +39,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'appointments.apps.AppointmentsConfig',
     'doctors.apps.DoctorsConfig',
-    "users",
-    "doctors",
-    "appointments",
-    "payments",
-    "reviews",
+    'payments.apps.PaymentsConfig',
+    'reviews.apps.ReviewsConfig',
+    'users.apps.UsersConfig',
 ]
 
 MIDDLEWARE = [
