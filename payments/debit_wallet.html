@@ -1,0 +1,24 @@
+<h2>کسر از کیف پول</h2>
+
+<form method="post">
+  {% csrf_token %}
+  <label>مبلغ:</label>
+  <input type="number" name="amount" step="0.01" required><br><br>
+
+  <label>کیف پول مقصد:</label>
+  <select name="destination_wallet" required>
+    {% for wallet in wallets %}
+      <option value="{{ wallet.id }}">{{ wallet.user.username }} (موجودی: {{ wallet.balance }})</option>
+    {% endfor %}
+  </select><br><br>
+
+  <button type="submit">پرداخت</button>
+</form>
+
+{% if messages %}
+  <ul>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
