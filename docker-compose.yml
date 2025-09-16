@@ -1,17 +1,5 @@
 version: "3.9"
 services:
-  web:
-    build: .
-    #entrypoint: ["./entrypoint.sh"]
-    command: gunicorn MedQueue.wsgi:application --bind 0.0.0.0:8000
-    ports:
-      - "8000:8000"
-    depends_on:
-      - db
-    env_file:
-      - .env.example
-    volumes:
-      - .:/app
   db:
     image: postgres:16
     environment:
@@ -22,5 +10,25 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-medqueue} -d ${POSTGRES_DB:-medqueue}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  web:
+    build: .
+    entrypoint: ["/entrypoint.sh"]
+    command: ["gunicorn", "MedQueue.wsgi:application", "--bind", "0.0.0.0:8000"]
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+
 volumes:
   pgdata:
