@@ -29,7 +29,7 @@ class SignupView(View):
         signup_form = SignupForm(request.POST)
         if signup_form.is_valid():
             signup_form.save()
-            return HttpResponse("User created successfully")
+            return redirect('login')
         return render(request, 'signup_form.html', {
             'form': signup_form
         })
