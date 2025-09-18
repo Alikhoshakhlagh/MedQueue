@@ -7,13 +7,21 @@ from django.contrib.auth.forms import AuthenticationForm
 class SignupForm(forms.ModelForm):
     class Meta:
         model = CustomUser
-        fields = ['username', 'email', 'password']
+        fields = ['username', 'email', 'password', 'role']
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["role"].choices = [
+            ("patient", "Patient"),
+            ("doctor", "Doctor"),
+        ]
 
     def save(self, commit=True):
         user = CustomUser.objects.create_user(
             username=self.cleaned_data['username'],
             email=self.cleaned_data['email'],
-            password=self.cleaned_data['password']
+            password=self.cleaned_data['password'],
+            role=self.cleaned_data['role'],
         )
         return user
     
