@@ -1,0 +1,16 @@
+{% if request.user.is_authenticated %}
+    <h1>Hello {{ request.user.username }}</h1>
+    <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="dropdown-item text-danger">
+            Logout
+        </button>
+    </form>
+{% else %}
+    <form method="get" action="{% url 'login' %}">
+        {% csrf_token %}
+        <button type="submit" class="dropdown-item text-danger">
+            Login
+        </button>
+    </form>
+{% endif %}
