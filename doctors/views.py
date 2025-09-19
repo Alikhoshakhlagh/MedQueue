@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.utils.dateparse import parse_datetime
 from decimal import Decimal, ROUND_HALF_UP
+from django.utils import timezone
 
 from .models import Doctor, Specialty, Slot
 
@@ -169,3 +170,20 @@ def slot_deactivate(request, pk):
     s.is_active = False
     s.save()
     return JsonResponse({"id": s.id, "is_active": s.is_active})
+
+
+#Slot's by Role
+@require_http_methods(["POST"])
+@login_required
+def slot_book(request, pk):
+    s = get_object_or_404(Slot, pk=pk)
+    if not s.is_active or s.booked_by_id is not None:
+        return HttpResponseBadRequest("این نوبت در دسترس نیست.")
+    if getattr(request.user, "role", "") != "patient":
+        return HttpResponseForbidden("فقط بیمار می‌تواند نوبت رزرو کند.")
+
+    s.booked_by = request.user
+    s.booked_at = timezone.now()
+    s.is_active = False
+    s.save()
+    return JsonResponse({"ok": True, "id": s.id, "booked_at": s.booked_at.isoformat()})
