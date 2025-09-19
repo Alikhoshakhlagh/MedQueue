@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Top Up Wallet</title>
+</head>
+<body>
+    <h1>Top Up Wallet</h1>
+
+    <form method="post" action="/payments/credit/">
+        {% csrf_token %}
+
+        <label for="wallet_id">Wallet ID:</label>
+        <input type="text" id="wallet_id" name="wallet_id" placeholder="Enter wallet ID" required><br><br>
+
+        <label for="amount">Amount:</label>
+        <input type="text" id="amount" name="amount" placeholder="Enter amount" required><br><br>
+
+        <label>OTP:</label>
+        <input type="text" id="otp" name="otp" placeholder="OTP code"><br><br>
+
+        <button type="submit">Top Up</button>
+    </form>
+
+
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</body>
+</html>

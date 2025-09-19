@@ -1,15 +1,21 @@
+from decimal import Decimal
+
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 
+from users.models import CustomUser
+
 
 # Create your models here.
 class Wallet(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="wallet")
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="wallet")
     balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return f"{self.user.username}s wallet"
 
 class TransactionType(models.TextChoices):
     DEBIT = 'DEBIT', 'Debit'
@@ -27,19 +33,21 @@ class Transaction(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def debt_payment(self):
+        amount = Decimal(str(self.amount))
         if not self.origin_wallet or not self.destination_wallet:
             raise ValueError("Both origin and destination wallets are required for DEBIT transaction.")
-        if self.origin_wallet.balance < self.amount:
+        if self.origin_wallet.balance < amount:
             raise Exception('Please increase your balance first and then take action.')
-        self.origin_wallet.balance -= self.amount
-        self.destination_wallet.balance += self.amount
+        self.origin_wallet.balance -= amount
+        self.destination_wallet.balance += amount
         self.origin_wallet.save()
         self.destination_wallet.save()
 
     def credit_payment(self):
+        amount = Decimal(str(self.amount))
         if not self.destination_wallet:
             raise ValueError("Destination wallet is required for CREDIT transaction.")
-        self.destination_wallet.balance += self.amount
+        self.destination_wallet.balance += amount
         self.destination_wallet.save()
 
     def save(self, *args, **kwargs):
