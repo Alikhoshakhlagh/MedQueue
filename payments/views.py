@@ -1,21 +1,22 @@
 from decimal import Decimal
-from urllib import request
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from django.views import View
 from django.shortcuts import redirect, render
+from django.views.decorators.csrf import csrf_exempt
 
 from payments.models import TransactionType, Wallet, Transaction
 
 
 # Create your views here.
-@login_required
-def deduct_balance_on_booking(request):
-    if request.method == 'POST':
-        origin_wallet_id = request.POST.get('destination_wallet')
-        destination_wallet_id = request.POST.get('destination_wallet')
-
+@method_decorator(csrf_exempt, name='dispatch')
+class DeductBalanceOnBooking(View):
+    def post(self, request, *args, **kwargs):
         try:
+            origin_wallet_id = request.POST.get('origin_wallet')
+            destination_wallet_id = request.POST.get('destination_wallet')
+
             origin_wallet = Wallet.objects.get(id=origin_wallet_id)
             destination_wallet = Wallet.objects.get(id=destination_wallet_id)
         except Wallet.DoesNotExist:
@@ -45,6 +46,7 @@ def deduct_balance_on_booking(request):
         except ValueError as e:
             messages.error(request, str(e))
         return redirect("debit_wallet")
-
-    wallets = Wallet.objects.exclude(user=request.user)
-    return render(request, "payments/debit_wallet.html")
+    def get(self, request, *args, **kwargs):
+        #wallets = Wallet.objects.exclude(user=request.user)
+        wallets = Wallet.objects.all()
+        return render(request, "payments/debit_wallet.html")
