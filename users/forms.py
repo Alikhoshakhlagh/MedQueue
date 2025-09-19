@@ -2,6 +2,10 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from users.models import CustomUser, OTPToken
 
+try:
+    from doctors.models import Doctor, Specialty
+except Exception:
+    Doctor = Specialty = None
 
 class SignupForm(forms.ModelForm):
     password = forms.CharField(
@@ -32,11 +36,22 @@ class SignupForm(forms.ModelForm):
 
     def save(self, commit=True):
         user = CustomUser.objects.create_user(
-            username=self.cleaned_data["username"],
-            email=self.cleaned_data["email"],
-            password=self.cleaned_data["password"],
-            role=self.cleaned_data["role"],
+            username=self.cleaned_data['username'],
+            email=self.cleaned_data['email'],
+            password=self.cleaned_data['password'],
+            role=self.cleaned_data['role'],
         )
+        if self.cleaned_data.get('role') == 'doctor' and Doctor is not None and Specialty is not None:
+            sp, _ = Specialty.objects.get_or_create(name="Unassigned")
+            Doctor.objects.get_or_create(
+                user=user,
+                defaults={
+                    "name": user.get_full_name() or user.username,
+                    "specialty": sp,
+                    "fee": 0,
+                    "is_active": True,
+                }
+            )
         return user
 
 

@@ -242,22 +242,41 @@ def dashboard_doctor(request):
 
     doctor = None
     if Doctor:
-        doctor = Doctor.objects.select_related("specialty").filter(user=request.user).first()
+        qs = Doctor.objects.select_related("specialty")
+        try:
+            has_user_field = any(f.name == "user" for f in Doctor._meta.get_fields())
+        except Exception:
+            has_user_field = False
+
+        if has_user_field:
+            doctor = qs.filter(user=request.user).first()
+
+        if not doctor:
+            cands = []
+            full = request.user.get_full_name()
+            if full:
+                cands.append(full)
+            cands.append(request.user.username)
+            doctor = qs.filter(name__in=cands).first()
 
     slots = []
     booked_slots = []
     if doctor and Slot:
         slots = Slot.objects.filter(doctor=doctor, is_active=True).order_by("start")[:50]
         if hasattr(Slot, "booked_by"):
-            booked_slots = Slot.objects.select_related("booked_by").filter(
-                doctor=doctor, booked_by__isnull=False
-            ).order_by("-booked_at")[:50]
+            booked_slots = (Slot.objects.select_related("booked_by")
+                            .filter(doctor=doctor, booked_by__isnull=False)
+                            .order_by("-booked_at")[:50])
 
     wallet_balance = None
     if Wallet:
         w = Wallet.objects.filter(user=request.user).first()
-        if w and hasattr(w, "balance"):
-            wallet_balance = w.balance
+        wallet_balance = getattr(w, "balance", None)
 
-    ctx = {"doctor": doctor, "slots": slots, "booked_slots": booked_slots, "wallet_balance": wallet_balance}
+    ctx = {
+        "doctor": doctor,
+        "slots": slots,
+        "booked_slots": booked_slots,
+        "wallet_balance": wallet_balance,
+    }
     return render(request, "users/dashboard_doctor.html", ctx)
