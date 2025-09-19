@@ -18,60 +18,131 @@
         <div><strong>نام:</strong> {{ doctor.name }}</div>
         <div><strong>تخصص:</strong> {{ doctor.specialty.name }}</div>
         <div><strong>هزینه ویزیت:</strong> {{ doctor.fee|floatformat:2 }}</div>
+        {% if doctor.specialty.name == "Unassigned" %}
+          <div class="alert alert-warning mt-2 small">
+            تخصص شما هنوز تعیین نشده است؛ لطفاً با ادمین هماهنگ کنید.
+          </div>
+        {% endif %}
       {% else %}
-        <div class="text-muted">حساب شما به یک رکورد «پزشک» لینک نشده است.</div>
+        <div class="alert alert-danger">
+          رکورد «پزشک» برای حساب شما پیدا نشد.
+          <div class="small mt-2">
+            - اگر در مدل Doctor فیلد <code>user</code> دارید: به ادمین بگویید در بخش Doctor، فیلد <strong>user</strong> را به حساب شما لینک کند.<br>
+            - در غیر این صورت، نام Doctor را دقیقاً برابر نام‌کاربری/نام‌نمایشی شما تنظیم کنید تا به‌صورت خودکار شناسایی شود.
+          </div>
+          <div class="mt-2">
+            <a class="btn btn-outline-secondary btn-sm" href="/admin/">رفتن به ادمین</a>
+          </div>
+        </div>
       {% endif %}
     </div>
   </div>
 
   <div class="col-12 col-lg-8">
-    <div class="card p-3">
-      <h5 class="mb-2">نوبت‌های آزاد من</h5>
-      {% if slots %}
-      <table class="table align-middle">
-        <thead><tr><th>#</th><th>شروع</th><th>پایان</th><th>وضعیت</th><th></th></tr></thead>
-        <tbody>
-          {% for s in slots %}
-          <tr>
-            <td>{{ forloop.counter }}</td>
-            <td>{{ s.start|date:"Y-m-d H:i" }}</td>
-            <td>{{ s.end|date:"H:i" }}</td>
-            <td><span class="badge bg-success">آزاد</span></td>
-            <td class="text-end">
-              <form method="post" action="/doctors/api/slots/{{ s.id }}/deactivate/">
-                {% csrf_token %}
-                <button class="btn btn-outline-danger btn-sm">غیرفعال</button>
-              </form>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      {% else %}
-        <div class="text-muted">نوبت آزادی ثبت نشده.</div>
-      {% endif %}
-    </div>
+    {% if doctor %}
+      <div class="card p-3">
+        <h5 class="mb-2">ساخت نوبت جدید</h5>
+        <form method="post" action="/doctors/api/slots/" class="row gy-2 gx-2 align-items-end">
+          {% csrf_token %}
+          <input type="hidden" name="doctor" value="{{ doctor.id }}">
+          <div class="col-12 col-md-5">
+            <label class="form-label">شروع</label>
+            <input type="datetime-local" name="start" id="start" class="form-control" required>
+          </div>
+          <div class="col-12 col-md-5">
+            <label class="form-label">پایان</label>
+            <input type="datetime-local" name="end" id="end" class="form-control" required>
+          </div>
+          <div class="col-12 col-md-2 d-grid">
+            <button type="submit" class="btn btn-primary">ایجاد</button>
+          </div>
 
-    <div class="card p-3 mt-3">
-      <h5 class="mb-2">نوبت‌های رزروشده</h5>
-      {% if booked_slots %}
-      <table class="table align-middle">
-        <thead><tr><th>#</th><th>بیمار</th><th>زمان نوبت</th><th>تاریخ رزرو</th></tr></thead>
-        <tbody>
-          {% for s in booked_slots %}
-          <tr>
-            <td>{{ forloop.counter }}</td>
-            <td>{{ s.booked_by.username }}</td>
-            <td>{{ s.start|date:"Y-m-d H:i" }} — {{ s.end|date:"H:i" }}</td>
-            <td>{{ s.booked_at|date:"Y-m-d H:i" }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      {% else %}
-        <div class="text-muted">هنوز نوبت رزروشده‌ای ندارید.</div>
-      {% endif %}
-    </div>
+          <div class="col-12 mt-2">
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+              <span class="text-secondary small">مدت سریع:</span>
+              <button type="button" class="btn btn-outline-secondary btn-sm dur" data-min="15">+15</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm dur" data-min="30">+30</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm dur" data-min="45">+45</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm dur" data-min="60">+60</button>
+            </div>
+          </div>
+        </form>
+        <script>
+          (function(){
+            function pad(n){return (n<10?'0':'')+n}
+            function toLocalInput(dt){
+              const y=dt.getFullYear(), m=pad(dt.getMonth()+1), d=pad(dt.getDate()), h=pad(dt.getHours()), mi=pad(dt.getMinutes());
+              return `${y}-${m}-${d}T${h}:${mi}`;
+            }
+            const start = document.getElementById('start');
+            const end = document.getElementById('end');
+            document.querySelectorAll('.dur').forEach(btn=>{
+              btn.addEventListener('click', ()=>{
+                if(!start.value){ start.focus(); return; }
+                const mins = parseInt(btn.dataset.min,10)||30;
+                const s = new Date(start.value);
+                const e = new Date(s.getTime()+ mins*60000);
+                end.value = toLocalInput(e);
+              });
+            });
+          })();
+        </script>
+      </div>
+
+      <div class="card p-3 mt-3">
+        <h5 class="mb-2">نوبت‌های آزاد من</h5>
+        {% if slots %}
+          <table class="table align-middle">
+            <thead><tr><th>#</th><th>شروع</th><th>پایان</th><th>وضعیت</th><th></th></tr></thead>
+            <tbody>
+              {% for s in slots %}
+              <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ s.start|date:"Y-m-d H:i" }}</td>
+                <td>{{ s.end|date:"H:i" }}</td>
+                <td><span class="badge bg-success">آزاد</span></td>
+                <td class="text-end">
+                  <form method="post" action="/doctors/api/slots/{{ s.id }}/deactivate/">
+                    {% csrf_token %}
+                    <button class="btn btn-outline-danger btn-sm">غیرفعال</button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <div class="text-muted">نوبت آزادی ثبت نشده.</div>
+        {% endif %}
+      </div>
+
+      <div class="card p-3 mt-3">
+        <h5 class="mb-2">نوبت‌های رزرو‌شده</h5>
+        {% if booked_slots %}
+          <table class="table align-middle">
+            <thead><tr><th>#</th><th>بیمار</th><th>زمان نوبت</th><th>تاریخ رزرو</th></tr></thead>
+            <tbody>
+              {% for s in booked_slots %}
+              <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ s.booked_by.username }}</td>
+                <td>{{ s.start|date:"Y-m-d H:i" }} — {{ s.end|date:"H:i" }}</td>
+                <td>{{ s.booked_at|date:"Y-m-d H:i" }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <div class="text-muted">نوبت رزرو‌شده‌ای ندارید.</div>
+        {% endif %}
+      </div>
+    {% else %}
+      <div class="card p-4">
+        <div class="text-center text-secondary">
+          برای نمایش فرم «ساخت نوبت جدید»، ابتدا باید رکورد پزشک شما مشخص شود.
+        </div>
+      </div>
+    {% endif %}
   </div>
 </div>
 {% endblock %}
