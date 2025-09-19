@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}داشبورد پزشک{% endblock %}
+
+{% block content %}
+<div class="row g-3">
+  <div class="col-12 col-lg-4">
+    <div class="card p-3">
+      <h5 class="mb-3">کیف پول</h5>
+      <div class="fs-5">
+        موجودی:
+        {% if wallet_balance is not None %} {{ wallet_balance|floatformat:2 }} {% else %} نامشخص {% endif %}
+      </div>
+    </div>
+
+    <div class="card p-3 mt-3">
+      <h5 class="mb-2">اطلاعات پزشک</h5>
+      {% if doctor %}
+        <div><strong>نام:</strong> {{ doctor.name }}</div>
+        <div><strong>تخصص:</strong> {{ doctor.specialty.name }}</div>
+        <div><strong>هزینه ویزیت:</strong> {{ doctor.fee|floatformat:2 }}</div>
+      {% else %}
+        <div class="text-muted">حساب شما به یک رکورد «پزشک» لینک نشده است.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-8">
+    <div class="card p-3">
+      <h5 class="mb-2">نوبت‌های آزاد من</h5>
+      {% if slots %}
+      <table class="table align-middle">
+        <thead><tr><th>#</th><th>شروع</th><th>پایان</th><th>وضعیت</th><th></th></tr></thead>
+        <tbody>
+          {% for s in slots %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ s.start|date:"Y-m-d H:i" }}</td>
+            <td>{{ s.end|date:"H:i" }}</td>
+            <td><span class="badge bg-success">آزاد</span></td>
+            <td class="text-end">
+              <form method="post" action="/doctors/api/slots/{{ s.id }}/deactivate/">
+                {% csrf_token %}
+                <button class="btn btn-outline-danger btn-sm">غیرفعال</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+        <div class="text-muted">نوبت آزادی ثبت نشده.</div>
+      {% endif %}
+    </div>
+
+    <div class="card p-3 mt-3">
+      <h5 class="mb-2">نوبت‌های رزروشده</h5>
+      {% if booked_slots %}
+      <table class="table align-middle">
+        <thead><tr><th>#</th><th>بیمار</th><th>زمان نوبت</th><th>تاریخ رزرو</th></tr></thead>
+        <tbody>
+          {% for s in booked_slots %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ s.booked_by.username }}</td>
+            <td>{{ s.start|date:"Y-m-d H:i" }} — {{ s.end|date:"H:i" }}</td>
+            <td>{{ s.booked_at|date:"Y-m-d H:i" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+        <div class="text-muted">هنوز نوبت رزروشده‌ای ندارید.</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

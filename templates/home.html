@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}خانه{% endblock %}
+{% block content %}
+<div class="py-5 text-center">
+  <h1 class="mb-3">MedQueue</h1>
+  <p class="text-secondary">مدیریت نوبت پزشکان و بیماران</p>
+  {% if request.user.is_authenticated %}
+    <a class="btn btn-primary mt-3" href="{% url 'users:dashboard' %}">رفتن به داشبورد</a>
+  {% else %}
+    <a class="btn btn-primary mt-3" href="{% url 'users:login' %}">ورود</a>
+    <a class="btn btn-success mt-3 ms-2" href="{% url 'users:signup' %}">ثبت‌نام</a>
+  {% endif %}
+</div>
+{% endblock %}
