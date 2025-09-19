@@ -11,7 +11,7 @@ class DoctorAdmin(admin.ModelAdmin):
     list_display = ("name", "specialty", "fee", "is_active")
     list_filter = ("specialty", "is_active")
     search_fields = ("name", "specialty__name")
-    list_editable = ("fee", "is_active")
+    list_editable = ("fee", "specialty")
 
 @admin.register(Slot)
 class SlotAdmin(admin.ModelAdmin):

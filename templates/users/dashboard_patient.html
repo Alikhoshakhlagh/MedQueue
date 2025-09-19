@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}داشبورد بیمار{% endblock %}
+
+{% block content %}
+<div class="row g-3">
+  <div class="col-12 col-lg-4">
+    <div class="card p-3">
+      <h5 class="mb-3">کیف پول</h5>
+      <div class="fs-5">
+        موجودی: 
+        {% if wallet_balance is not None %}
+          {{ wallet_balance|floatformat:2 }}
+        {% else %} نامشخص {% endif %}
+      </div>
+    </div>
+
+    <div class="card p-3 mt-3">
+      <h5 class="mb-3">جستجوی پزشک</h5>
+      <form method="get" action="{% url 'users:dashboard_patient' %}" class="row g-2">
+        <div class="col-12">
+          <input type="text" name="q" class="form-control" placeholder="نام پزشک یا تخصص..." value="{{ q }}">
+        </div>
+        <div class="col-12">
+          <select name="specialty" class="form-select">
+            <option value="">— همه تخصص‌ها —</option>
+            {% for sp in specialties %}
+              <option value="{{ sp.id }}" {% if selected_specialty and sp.id == selected_specialty %}selected{% endif %}>
+                {{ sp.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-12 d-grid">
+          <button type="submit" class="btn btn-primary">جستجو</button>
+        </div>
+      </form>
+    </div>
+
+    {% if doctors %}
+    <div class="card p-3 mt-3">
+      <h6 class="mb-2">نتایج</h6>
+      <div class="list-group">
+        {% for d in doctors %}
+          <a class="list-group-item list-group-item-action{% if doctor_id|add:'' == d.id|add:'' %} active{% endif %}"
+             href="{% url 'users:dashboard_patient' %}?q={{ q }}&specialty={{ selected_specialty|default:'' }}&doctor={{ d.id }}">
+            <div class="d-flex justify-content-between">
+              <strong>{{ d.name }}</strong>
+              <span class="text-muted">{{ d.specialty.name }}</span>
+            </div>
+            <div class="small text-secondary">هزینه ویزیت: {{ d.fee|floatformat:2 }}</div>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="col-12 col-lg-8">
+    {% if selected_doctor %}
+      <div class="card p-3">
+        <h5 class="mb-2">نوبت‌های آزاد {{ selected_doctor.name }} <span class="text-secondary fs-6">({{ selected_doctor.specialty.name }})</span></h5>
+        {% if free_slots %}
+          <table class="table align-middle">
+            <thead><tr><th>#</th><th>شروع</th><th>پایان</th><th></th></tr></thead>
+            <tbody>
+              {% for s in free_slots %}
+              <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ s.start|date:"Y-m-d H:i" }}</td>
+                <td>{{ s.end|date:"Y-m-d H:i" }}</td>
+                <td class="text-end">
+                  <form method="post" action="/doctors/api/slots/{{ s.id }}/book/">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success btn-sm">رزرو نوبت</button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <div class="text-muted">نوبت آزادی موجود نیست.</div>
+        {% endif %}
+      </div>
+    {% else %}
+      <div class="card p-4 text-center text-secondary">یک پزشک را از لیست سمت راست انتخاب کنید تا نوبت‌های آزاد او را ببینید.</div>
+    {% endif %}
+
+    <div class="card p-3 mt-3">
+      <h5 class="mb-2">تاریخچهٔ نوبت‌های من</h5>
+      {% if my_appointments %}
+        <table class="table">
+          <thead><tr><th>#</th><th>پزشک</th><th>تخصص</th><th>تاریخ رزرو</th><th>زمان نوبت</th></tr></thead>
+          <tbody>
+            {% for s in my_appointments %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td>{{ s.doctor.name }}</td>
+              <td>{{ s.doctor.specialty.name }}</td>
+              <td>{{ s.booked_at|date:"Y-m-d H:i" }}</td>
+              <td>{{ s.start|date:"Y-m-d H:i" }} — {{ s.end|date:"H:i" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="text-muted">هنوز نوبت رزروشده‌ای ندارید.</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

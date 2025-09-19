@@ -42,6 +42,8 @@ class Slot(models.Model):
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name="slots")
     start = models.DateTimeField()
     end = models.DateTimeField()
+    booked_by = models.ForeignKey('users.CustomUser', null=True, blank=True, on_delete=models.SET_NULL, related_name="booked_slots")
+    booked_at = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
 
     class Meta:

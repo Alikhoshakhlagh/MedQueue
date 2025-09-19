@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}کد ورود{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-md-6 col-lg-4">
+    <div class="card p-4">
+      <h5 class="mb-3 text-center">کد یکبار مصرف</h5>
+      <form method="post" action="{% url 'users:otp' %}">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label">کد ۶ رقمی</label>
+          {{ form.otp }}
+          {% if form.otp.errors %}<div class="text-danger small">{{ form.otp.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="d-grid gap-2">
+          <button class="btn btn-primary">تأیید و ورود</button>
+        </div>
+      </form>
+      <form method="post" action="{% url 'users:otp_resend' %}" class="mt-3">
+        {% csrf_token %}
+        <button class="btn btn-outline-secondary w-100">ارسال مجدد کد</button>
+      </form>
+      <div class="text-center mt-3">
+        <a href="{% url 'users:login' %}" class="small text-muted">بازگشت به ورود</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

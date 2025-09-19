@@ -1,0 +1,22 @@
+<nav class="navbar navbar-expand-lg" style="background: linear-gradient(90deg,#064e3b,#1e40af);">
+  <div class="container">
+    <a class="navbar-brand text-white fw-bold" href="/">MedQueue</a>
+    <button class="navbar-toggler bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div id="mainNav" class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-auto">
+        {% if request.user.is_authenticated %}
+          {% if request.user.role == 'doctor' %}
+            <li class="nav-item"><a class="nav-link text-white" href="{% url 'users:dashboard_doctor' %}">داشبورد</a></li>
+          {% else %}
+            <li class="nav-item"><a class="nav-link text-white" href="{% url 'users:dashboard_patient' %}">داشبورد</a></li>
+          {% endif %}
+          <li class="nav-item"><a class="nav-link text-white-50" href="{% url 'users:logout' %}">خروج</a></li>
+        {% else %}
+          <li class="nav-item"><a class="nav-link text-white" href="{% url 'users:login' %}">ورود</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
