@@ -1,0 +1,32 @@
+<html>
+<head>
+  <title>Test Debit Wallet</title>
+</head>
+<body>
+  <h1>Test Debit Wallet</h1>
+{% if messages %}
+  <ul>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+  <form method="post" action="{% url 'debit_wallet' %}">
+    {% csrf_token %}
+    <label>Origin Wallet ID:</label>
+    <input type="text" name="origin_wallet" placeholder="Origin wallet id"><br><br>
+
+    <label>Destination Wallet ID:</label>
+    <input type="text" name="destination_wallet" placeholder="Destination wallet id"><br><br>
+
+    <label>Amount:</label>
+    <input type="text" name="amount" placeholder="Amount"><br><br>
+
+    <label>OTP:</label>
+    <input type="text" name="otp" placeholder="OTP code"><br><br>
+
+    <button type="submit">Submit</button>
+  </form>
+</body>
+</html>
