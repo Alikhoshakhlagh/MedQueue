@@ -39,7 +39,7 @@ class Doctor(models.Model):
 
 
 class Slot(models.Model):
-    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name="slots")
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name="doctor_slots")
     start = models.DateTimeField()
     end = models.DateTimeField()
     is_active = models.BooleanField(default=True)

@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 app_name = "doctors"
@@ -12,4 +12,6 @@ urlpatterns = [
     # Slots
     path("api/slots/", views.slots_list_create, name="slots_list_create"),
     path("api/slots/<int:pk>/deactivate/", views.slot_deactivate, name="slot_deactivate"),
+    path('appointments/', include('appointments.urls')),
+
 ]
