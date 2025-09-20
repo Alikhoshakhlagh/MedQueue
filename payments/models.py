@@ -3,6 +3,8 @@ from decimal import Decimal
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 from users.models import CustomUser
 
@@ -16,6 +18,11 @@ class Wallet(models.Model):
 
     def __str__(self):
         return f"{self.user.username}s wallet"
+
+@receiver(post_save, sender=CustomUser)
+def create_user_wallet(sender, instance, created, **kwargs):
+    if created:
+        Wallet.objects.create(user=instance)
 
 class TransactionType(models.TextChoices):
     DEBIT = 'DEBIT', 'Debit'

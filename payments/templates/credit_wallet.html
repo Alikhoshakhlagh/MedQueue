@@ -1,34 +1,47 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Top Up Wallet</title>
-</head>
-<body>
-    <h1>Top Up Wallet</h1>
+{% extends "base.html" %}
+{% block title %}شارژ کیف پول{% endblock %}
 
-    <form method="post" action="/payments/credit/">
+{% block content %}
+<div class="row justify-content-center mt-4">
+  <div class="col-12 col-md-6">
+    <div class="card p-4 shadow-sm">
+      <h4 class="mb-3 text-center">شارژ کیف پول</h4>
+
+      <div class="mb-3 fs-5">
+        موجودی فعلی:
+        {% if wallet_balance is not None %}
+          {{ wallet_balance|floatformat:2 }} تومان
+        {% else %}
+          نامشخص
+        {% endif %}
+      </div>
+
+      <form method="post" action="{% url 'credit_wallet' %}">
         {% csrf_token %}
+        <div class="mb-3">
+          <label for="amount" class="form-label">مقدار شارژ (تومان):</label>
+          <input type="text" id="amount" name="amount" class="form-control" placeholder="مثلاً 50000" required>
+        </div>
 
-        <label for="wallet_id">Wallet ID:</label>
-        <input type="text" id="wallet_id" name="wallet_id" placeholder="Enter wallet ID" required><br><br>
+        <div class="d-grid">
+          <button type="submit" class="btn btn-success">شارژ کیف پول</button>
+        </div>
+      </form>
 
-        <label for="amount">Amount:</label>
-        <input type="text" id="amount" name="amount" placeholder="Enter amount" required><br><br>
-
-        <label>OTP:</label>
-        <input type="text" id="otp" name="otp" placeholder="OTP code"><br><br>
-
-        <button type="submit">Top Up</button>
-    </form>
-
-
-    {% if messages %}
-        <ul>
-            {% for message in messages %}
-                <li>{{ message }}</li>
-            {% endfor %}
+      {% if messages %}
+      <div class="mt-3">
+        <ul class="list-unstyled">
+          {% for message in messages %}
+            <li class="alert alert-{{ message.tags }}">{{ message }}</li>
+          {% endfor %}
         </ul>
-    {% endif %}
-</body>
-</html>
+      </div>
+      {% endif %}
+
+      <div class="mt-3 text-center">
+        <a href="{% url 'users:dashboard_patient' %}" class="btn btn-outline-secondary">بازگشت به داشبورد</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

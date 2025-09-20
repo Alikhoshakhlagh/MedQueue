@@ -68,9 +68,8 @@ class DeductBalanceOnBooking(View):
 class TopUpWallet(View):
     def post(self, request, *args, **kwargs):
         # get_wallet
-        wallet_id = request.POST.get('wallet_id')
         try:
-            wallet = Wallet.objects.get(id=wallet_id)
+            wallet = request.user.wallet
         except Wallet.DoesNotExist:
             messages.error(request, "wallet not found")
             return redirect("credit_wallet")
@@ -97,7 +96,13 @@ class TopUpWallet(View):
             messages.success(request, "Transfer successful")
         except ValueError as e:
             messages.error(request, str(e))
-        return redirect("credit_wallet")
+        return redirect("users:dashboard_patient")
 
     def get(self, request, *args, **kwargs):
-        return render(request, "credit_wallet.html")
+        try:
+            wallet = request.user.wallet
+            wallet_balance = wallet.balance
+        except Wallet.DoesNotExist:
+            wallet_balance = None
+
+        return render(request, "credit_wallet.html", {"wallet_balance": wallet_balance})
