@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}ثبت‌نام{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-md-7 col-lg-5">
+    <div class="card p-4">
+      <h5 class="mb-3 text-center">ثبت‌نام</h5>
+      <form method="post" action="{% url 'users:signup' %}">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label">نام کاربری</label>
+          {{ form.username }}
+          {% if form.username.errors %}<div class="text-danger small">{{ form.username.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">ایمیل</label>
+          {{ form.email }}
+          {% if form.email.errors %}<div class="text-danger small">{{ form.email.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">رمز عبور</label>
+          {{ form.password }}
+          {% if form.password.errors %}<div class="text-danger small">{{ form.password.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">نقش</label>
+          {{ form.role }}
+          {% if form.role.errors %}<div class="text-danger small">{{ form.role.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="d-grid">
+          <button class="btn btn-success">ایجاد حساب</button>
+        </div>
+      </form>
+      <div class="mt-3 text-center">
+        <a href="{% url 'users:login' %}">حساب دارید؟ ورود</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

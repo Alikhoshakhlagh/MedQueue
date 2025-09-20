@@ -1,0 +1,10 @@
+:root{
+  --green-900:#064e3b;
+  --blue-800:#1e40af;
+}
+.card{border-radius: .7rem}
+.btn-primary{background-color:#2563eb;border-color:#2563eb}
+.btn-primary:hover{background-color:#1d4ed8;border-color:#1d4ed8}
+.btn-success{background-color:#065f46;border-color:#065f46}
+.btn-success:hover{background-color:#064e3b;border-color:#064e3b}
+.table thead th{background:#f1f5f9}
