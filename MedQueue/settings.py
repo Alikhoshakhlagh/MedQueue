@@ -109,6 +109,19 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "DEBUG",
+    },
+}
 
 
 # Internationalization
@@ -146,4 +159,11 @@ STORAGES = {
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
-EMAIL_BACKEND = env("EMAIL_BACKEND")
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'tahashahrokh38@gmail.com'
+EMAIL_HOST_PASSWORD = 'csuz qgpj nbyw hszx'
+#DEFAULT_FROM_EMAIL = 'tahashahrokh38@gmail.com'
+

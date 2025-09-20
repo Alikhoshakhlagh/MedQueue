@@ -198,14 +198,16 @@ def slot_book(request, pk):
     except Wallet.DoesNotExist:
         return HttpResponseBadRequest("کیف پول یافت نشد.")
 
-
-    Transaction.objects.create(
-        origin_wallet=wallet,
-        destination_wallet=destination_wallet,
-        transaction_type=TransactionType.DEBIT,
-        amount=Decimal(fee),
-        description=f"پرداخت هزینه نوبت {s.id}"
-    )
+    try:
+        Transaction.objects.create(
+            origin_wallet=wallet,
+            destination_wallet=destination_wallet,
+            transaction_type=TransactionType.DEBIT,
+            amount=Decimal(fee),
+            description=f"پرداخت هزینه نوبت {s.id}"
+        )
+    except Exception as e:
+        return HttpResponseBadRequest("موجودی کافی نمی باشد!")
 
     s.booked_by = request.user
     s.booked_at = timezone.now()

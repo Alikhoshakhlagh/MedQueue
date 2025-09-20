@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.views.generic import View
@@ -5,6 +6,8 @@ from django.contrib.auth import authenticate, login, get_user_model, logout
 from django.utils import timezone
 from django.contrib import messages
 from django.core.mail import send_mail
+import logging
+logger = logging.getLogger(__name__)
 from django.db.models import Q
 from datetime import timedelta
 import random
@@ -30,7 +33,12 @@ def _generate_otp():
 
 
 def _send_otp_email(user, code):
+    if not user.email:
+        logger.warning(f"❌ کاربر {user.username} ایمیل ثبت نکرده است.")
+        return
+
     try:
+        logger.info(f"📧 تلاش برای ارسال OTP به {user.email} ...")
         send_mail(
             subject="🔐 کد یکبار مصرف ورود به MedQueue",
             message=(
@@ -39,12 +47,14 @@ def _send_otp_email(user, code):
                 f"{code}\n\n"
                 "این کد به مدت ۲ دقیقه معتبر است."
             ),
-            from_email="noreply@example.com",
-            recipient_list=[user.email] if user.email else [],
-            fail_silently=True,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            fail_silently=False,   # 👈 حتما False باشه تا خطا رو ببینی
         )
-    except Exception:
-        pass
+        logger.info(f"✅ ایمیل OTP به {user.email} ارسال شد.")
+    except Exception as e:
+        logger.error(f"❌ خطا در ارسال ایمیل به {user.email}: {e}")
+
 
 
 class HomeView(View):
