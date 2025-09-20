@@ -7,6 +7,9 @@ from django.utils import timezone
 from django.contrib import messages
 from django.core.mail import send_mail
 import logging
+
+from MedQueue.settings import env
+
 logger = logging.getLogger(__name__)
 from django.db.models import Q
 from datetime import timedelta
@@ -53,7 +56,7 @@ def _send_otp_email(user, code):
         )
         logger.info(f"✅ ایمیل OTP به {user.email} ارسال شد.")
     except Exception as e:
-        logger.error(f"❌ خطا در ارسال ایمیل به {user.email}: {e}")
+        logger.error(f"❌ خطا در ارسال ایمیل به {user.email}: {e} {settings.DEFAULT_FROM_EMAIL}")
 
 
 
