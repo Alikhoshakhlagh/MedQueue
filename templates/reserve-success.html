@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}رزرو نوبت موفق{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-md-6 col-lg-4">
+    <div class="card p-4 text-center">
+      <h5 class="mb-3 text-success">رزرو نوبت با موفقیت انجام شد ✅</h5>
+      <p class="mb-4">
+        نوبت شما با موفقیت ثبت شد. لطفاً برای مشاهده جزئیات به پروفایل خود مراجعه کنید.
+      </p>
+      <div class="d-grid gap-2">
+        <a href="{% url 'users:dashboard' %}" class="btn btn-primary">
+          مشاهده نوبت‌های من
+        </a>
+        <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+          بازگشت به صفحه اصلی
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

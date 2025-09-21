@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.dateparse import parse_datetime
 from decimal import Decimal, ROUND_HALF_UP
 from django.utils import timezone
+from django.shortcuts import redirect, render
 
 from .models import Doctor, Specialty, Slot
 
@@ -186,4 +187,5 @@ def slot_book(request, pk):
     s.booked_at = timezone.now()
     s.is_active = False
     s.save()
-    return JsonResponse({"ok": True, "id": s.id, "booked_at": s.booked_at.isoformat()})
+    return render(request, "reserve-success.html", {})
+    # return JsonResponse({"ok": True, "id": s.id, "booked_at": s.booked_at.isoformat()})
