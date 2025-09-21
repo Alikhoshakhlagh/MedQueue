@@ -14,4 +14,5 @@ urlpatterns = [
     path("api/slots/<int:pk>/deactivate/", views.slot_deactivate, name="slot_deactivate"),
     path('appointments/', include('appointments.urls')),
 
+    path("api/slots/<int:pk>/book/", views.slot_book, name="slot_book"),
 ]
