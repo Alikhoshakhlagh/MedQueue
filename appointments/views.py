@@ -73,8 +73,35 @@ def slot_book(request, pk):
         return HttpResponseForbidden("فقط بیمار می‌تواند نوبت رزرو کند.")
 
     s.booked_by = request.user
-    s.booked_at = timezone.now()
+    # s.booked_at = timezone.now()
     s.is_active = False
+    s.status = "pending"
+    s.save()
+    return render(request, "reserve-success.html", { })
+
+@login_required
+# TO DO
+#  ابنجا مربوط به درگاه پرداخت هست که باید در درگاه پرداخت این ای پی آی کال بشه
+def payment_success(request, slot_id):
+    s = get_object_or_404(Slot, pk=slot_id, booked_by=request.user, status="pending")
+    
     s.status = "reserved"
     s.save()
-    return render(request, "reserve-success.html", {})
+    
+    return render(request, "reserve-confirmed.html", {"slot": s})
+
+# @require_http_methods(["POST"])
+# @login_required
+# def slot_unbook(request, pk):
+#     s = get_object_or_404(Slot, pk=pk)
+#     if not s.is_active or s.status != "unreserved":
+#         return HttpResponseBadRequest("این نوبت در دسترس نیست.")
+#     if getattr(request.user, "role", "") != "patient":
+#         return HttpResponseForbidden("فقط بیمار می‌تواند نوبت رزرو کند.")
+
+#     s.booked_by = None
+#     # s.booked_at = timezone.now()
+#     s.is_active = True
+#     s.status = "unreserved"
+#     s.save()
+#     return redirect(request, "reserve-success.html", { })
