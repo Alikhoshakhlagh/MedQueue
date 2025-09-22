@@ -8,7 +8,7 @@ from decimal import Decimal, ROUND_HALF_UP
 from django.utils import timezone
 from django.shortcuts import redirect, render
 
-from .models import Doctor, Specialty, Slot
+from .models import Doctor, Specialty
 
 
 def money_str(val):
@@ -116,7 +116,7 @@ def doctor_detail(request, pk):
     })
 
 # ----- Slot Management -----
-@require_http_methods(["GET", "POST"])
+'''@require_http_methods(["GET", "POST"])
 @login_required
 def slots_list_create(request):
     if request.method == "GET":
@@ -188,4 +188,4 @@ def slot_book(request, pk):
     s.is_active = False
     s.save()
     return render(request, "reserve-success.html", {})
-    # return JsonResponse({"ok": True, "id": s.id, "booked_at": s.booked_at.isoformat()})
+    # return JsonResponse({"ok": True, "id": s.id, "booked_at": s.booked_at.isoformat()})'''

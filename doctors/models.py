@@ -38,7 +38,7 @@ class Doctor(models.Model):
         return f"{self.name} ({self.specialty.name})"
 
 
-class Slot(models.Model):
+'''class Slot(models.Model):
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name="doctor_slots")
     start = models.DateTimeField()
     end = models.DateTimeField()
@@ -71,3 +71,4 @@ class Slot(models.Model):
     def save(self, *args, **kwargs):
         self.full_clean()
         return super().save(*args, **kwargs)
+'''

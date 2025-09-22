@@ -10,9 +10,9 @@ urlpatterns = [
     path("api/doctors/", views.doctors_list_create, name="doctors_list_create"),
     path("api/doctors/<int:pk>/", views.doctor_detail, name="doctor_detail"),
     # Slots
-    path("api/slots/", views.slots_list_create, name="slots_list_create"),
-    path("api/slots/<int:pk>/deactivate/", views.slot_deactivate, name="slot_deactivate"),
-    path('appointments/', include('appointments.urls')),
+    #path("api/slots/", views.slots_list_create, name="slots_list_create"),
+    #path("api/slots/<int:pk>/deactivate/", views.slot_deactivate, name="slot_deactivate"),
+    #path('appointments/', include('appointments.urls')),
 
-    path("api/slots/<int:pk>/book/", views.slot_book, name="slot_book"),
+    #path("api/slots/<int:pk>/book/", views.slot_book, name="slot_book"),
 ]

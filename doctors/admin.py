@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Doctor, Specialty, Slot
+from .models import Doctor, Specialty
 
 @admin.register(Specialty)
 class SpecialtyAdmin(admin.ModelAdmin):
@@ -13,8 +13,8 @@ class DoctorAdmin(admin.ModelAdmin):
     search_fields = ("name", "specialty__name")
     list_editable = ("fee", "specialty")
 
-@admin.register(Slot)
+'''@admin.register(Slot)
 class SlotAdmin(admin.ModelAdmin):
     list_display = ("doctor", "start", "end", "is_active")
     list_filter = ("doctor", "is_active")
-    search_fields = ("doctor__name",)
+    search_fields = ("doctor__name",)'''
