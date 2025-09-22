@@ -1,9 +1,14 @@
 import threading
 
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render
-from django.test import TestCase, RequestFactory
+from django.test import TestCase, RequestFactory, TransactionTestCase
 
 from django.contrib.auth import get_user_model
+
+from appointments.models import Slot
+from appointments.services import reserve_slot
+from appointments.views import slot_book
 from doctors.management.commands.seed_doctors import Command
 from doctors.models import Doctor
 
@@ -11,7 +16,7 @@ User = get_user_model()
 
 
 # Create your tests here.
-class ConcurrentReservationTest(TestCase):
+class ConcurrentReservationTest(TransactionTestCase):
     doctors = 1
 
     def setUpPatients(self, num_patients):
@@ -25,6 +30,7 @@ class ConcurrentReservationTest(TestCase):
         command = Command()
         command.handle(specialties=1, doctors=1, slots_per_doctor=1)
         self.doctor = Doctor.objects.first()
+        self.slot = Slot.objects.filter(doctor=self.doctor).first()
 
     def setUpRequests(self):
         requestFactory = RequestFactory()
@@ -33,17 +39,32 @@ class ConcurrentReservationTest(TestCase):
             request = requestFactory.get('not-important')
             request.user = self.patients[i]
             requests[i] = request
+        self.requests = requests
 
-    def setUp(self, patients=100):
+    def setUp(self, patients=10):
         self.num_patients = patients
         self.setUpDoctor()
         self.setUpPatients(patients)
-        self.setUpRequests()
+        self.results = [None] * self.num_patients
 
     def test_concurrent_slot_reservation(self):
-        barrier = threading.Barrier(len(self.patients))
-        requestFactory = RequestFactory()
+        slot_id = self.slot.pk
 
-        def reserve_slot(slot):
-            requestFactory.get('not-important')
+        barrier = threading.Barrier(len(self.patients))
+
+        def reserve_slot_tester(user_id, result_key):
             barrier.wait()
+            self.results[result_key] = reserve_slot(slot_id, user_id)
+
+        threads = [threading.Thread()] * self.num_patients
+        for i in range(self.num_patients):
+            threads[i] = threading.Thread(
+                target=reserve_slot_tester,
+                args=(self.patients[i].id, i)
+            )
+            threads[i].start()
+
+        for i in range(self.num_patients):
+            threads[i].join()
+
+        assert len([1 for i in range(self.num_patients) if self.results[i] is not None]) == 1

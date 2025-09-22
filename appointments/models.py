@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from doctors.models import Doctor
 from rest_framework import serializers
 
+
 class Slot(models.Model):
     STATUS_CHOICES = [
         ("unreserved", "Unreserved"),
@@ -27,6 +28,9 @@ class Slot(models.Model):
         choices=STATUS_CHOICES,
         default="unreserved"
     )
+
+    class NotAvailable(ValueError):
+        pass
 
     class Meta:
         ordering = ["start"]
@@ -53,4 +57,3 @@ class Slot(models.Model):
     def save(self, *args, **kwargs):
         self.full_clean()
         return super().save(*args, **kwargs)
-
