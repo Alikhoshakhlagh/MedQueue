@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}{% if form.instance.pk %}ویرایش نظر{% else %}ایجاد نظر{% endif %}{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm p-4">
+  <h3 class="mb-3">{% if form.instance.pk %}ویرایش نظر{% else %}ایجاد نظر جدید{% endif %}</h3>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div class="mt-3">
+      <button type="submit" class="btn btn-success">ذخیره</button>
+      <a href="{% url 'reviews:review-list' %}" class="btn btn-secondary">انصراف</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
