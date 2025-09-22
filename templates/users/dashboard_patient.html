@@ -12,6 +12,14 @@
           {{ wallet_balance|floatformat:2 }}
         {% else %} نامشخص {% endif %}
       </div>
+
+      <div class="mt-3 d-grid">
+<a href="{% url 'credit_wallet' %}" class="btn btn-outline-success">
+  شارژ کیف پول
+</a>
+
+  </div>
+
     </div>
 
     <div class="card p-3 mt-3">
@@ -61,13 +69,14 @@
         <h5 class="mb-2">نوبت‌های آزاد {{ selected_doctor.name }} <span class="text-secondary fs-6">({{ selected_doctor.specialty.name }})</span></h5>
         {% if free_slots %}
           <table class="table align-middle">
-            <thead><tr><th>#</th><th>شروع</th><th>پایان</th><th></th></tr></thead>
+            <thead><tr><th>#</th><th>شروع</th><th>پایان</th><th>هزینه</th></tr></thead>
             <tbody>
               {% for s in free_slots %}
               <tr>
                 <td>{{ forloop.counter }}</td>
                 <td>{{ s.start|date:"Y-m-d H:i" }}</td>
                 <td>{{ s.end|date:"Y-m-d H:i" }}</td>
+                  <td>{{ selected_doctor.fee }}</td>
                 <td class="text-end">
                   <form method="post" action="/doctors/api/slots/{{ s.id }}/book/">
                     {% csrf_token %}

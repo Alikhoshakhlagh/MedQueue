@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}شارژ کیف پول{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+  <div class="col-12 col-md-6">
+    <div class="card p-4 shadow-sm">
+      <h4 class="mb-3 text-center">شارژ کیف پول</h4>
+
+      <div class="mb-3 fs-5">
+        موجودی فعلی:
+        {% if wallet_balance is not None %}
+          {{ wallet_balance|floatformat:2 }} تومان
+        {% else %}
+          نامشخص
+        {% endif %}
+      </div>
+
+      <form method="post" action="{% url 'credit_wallet' %}">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="amount" class="form-label">مقدار شارژ (تومان):</label>
+          <input type="text" id="amount" name="amount" class="form-control" placeholder="مثلاً 50000" required>
+        </div>
+
+        <div class="d-grid">
+          <button type="submit" class="btn btn-success">شارژ کیف پول</button>
+        </div>
+      </form>
+
+      {% if messages %}
+      <div class="mt-3">
+        <ul class="list-unstyled">
+          {% for message in messages %}
+            <li class="alert alert-{{ message.tags }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      <div class="mt-3 text-center">
+        <a href="{% url 'users:dashboard_patient' %}" class="btn btn-outline-secondary">بازگشت به داشبورد</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
