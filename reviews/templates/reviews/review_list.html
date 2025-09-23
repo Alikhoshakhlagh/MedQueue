@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}لیست نظرات{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>لیست نظرات</h2>
+    <a href="{% url 'reviews:review-create' %}" class="btn btn-success">ایجاد نظر جدید</a>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-hover table-bordered align-middle">
+    <thead class="table-primary">
+      <tr>
+        <th>عنوان</th>
+        <th>امتیاز</th>
+        <th>کاربر</th>
+        <th>اقدامات</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for review in reviews %}
+      <tr>
+        <td>{{ review.title }}</td>
+        <td>{{ review.rating }}</td>
+        <td>{{ review.user.username }}</td>
+        <td>
+          <a href="{% url 'reviews:review-detail' review.pk %}" class="btn btn-info btn-sm">مشاهده</a>
+          <a href="{% url 'reviews:review-edit' review.pk %}" class="btn btn-warning btn-sm">ویرایش</a>
+          <a href="{% url 'reviews:review-delete' review.pk %}" class="btn btn-danger btn-sm">حذف</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="4" class="text-center">هیچ نظری ثبت نشده است.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

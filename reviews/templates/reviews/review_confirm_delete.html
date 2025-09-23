@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}حذف نظر{% endblock %}
+
+{% block content %}
+<div class="alert alert-danger shadow-sm">
+  <h4 class="alert-heading">هشدار!</h4>
+  <p>آیا مطمئن هستید که می‌خواهید "{{ object.title }}" را حذف کنید؟</p>
+</div>
+<form method="post">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-danger">بله، حذف شود</button>
+  <a href="{% url 'reviews:review-detail' object.pk %}" class="btn btn-secondary">انصراف</a>
+</form>
+{% endblock %}
