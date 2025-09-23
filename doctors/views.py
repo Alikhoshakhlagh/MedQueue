@@ -1,19 +1,16 @@
-from django.contrib import messages
 from django.db import models
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, redirect
-from django.utils.dateparse import parse_datetime
+from django.shortcuts import get_object_or_404
 from decimal import Decimal, ROUND_HALF_UP
-from django.utils import timezone
 
-from payments.models import Wallet, Transaction, TransactionType
-from .models import Doctor, Specialty, Slot
+from .models import Doctor, Specialty
 
 
 def money_str(val):
     return f"{Decimal(val).quantize(Decimal('0.00'), rounding=ROUND_HALF_UP)}"
+
 
 # ----- Specialty -----
 @require_http_methods(["GET", "POST"])
@@ -30,6 +27,7 @@ def specialties(request):
         return HttpResponseBadRequest("name is required")
     s = Specialty.objects.create(name=name)
     return JsonResponse({"id": s.id, "name": s.name}, status=201)
+
 
 # ----- Doctor CRUD + Search -----
 @require_http_methods(["GET", "POST"])
@@ -116,8 +114,9 @@ def doctor_detail(request, pk):
         "is_active": d.is_active
     })
 
+
 # ----- Slot Management -----
-@require_http_methods(["GET", "POST"])
+'''@require_http_methods(["GET", "POST"])
 @login_required
 def slots_list_create(request):
     if request.method == "GET":
@@ -191,7 +190,6 @@ def slot_book(request, pk):
     if fee is None:
         return HttpResponseBadRequest("هزینه نوبت مشخص نشده است.")
 
-
     try:
         wallet = Wallet.objects.get(user_id=request.user.id)
         destination_wallet = Wallet.objects.get(user_id=doctor.user_id)
@@ -216,4 +214,4 @@ def slot_book(request, pk):
 
     messages.success(request, "رزرو نوبت با موفقیت انجام شد!")
 
-    return redirect("users:dashboard_patient")
+    return redirect("users:dashboard_patient")'''

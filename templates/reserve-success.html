@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}رزرو نوبت موفق{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-md-6 col-lg-4">
+    <div class="card p-4 text-center">
+      <h5 class="mb-3 text-success">رزرو نوبت با موفقیت انجام شد ✅</h5>
+      <p class="mb-4">
+        نوبت شما با موفقیت ثبت شد. دکمه پرداخت آنلاین فعلاً غیرفعال است.
+      </p>
+      <div class="d-grid gap-2">
+        <button type="button" class="btn btn-success" disabled>
+          پرداخت آنلاین (غیرفعال)
+        </button>
+
+        <a href="{% url 'users:dashboard' %}" class="btn btn-primary">
+          مشاهده نوبت‌های من
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
