@@ -53,12 +53,11 @@ def _send_otp_email(user, code):
             ),
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[user.email],
-            fail_silently=False,   # 👈 حتما False باشه تا خطا رو ببینی
+            fail_silently=False,  # 👈 حتما False باشه تا خطا رو ببینی
         )
         logger.info(f"✅ ایمیل OTP به {user.email} ارسال شد.")
     except Exception as e:
         logger.error(f"❌ خطا در ارسال ایمیل به {user.email}: {e} {settings.DEFAULT_FROM_EMAIL}")
-
 
 
 class HomeView(View):
@@ -140,10 +139,10 @@ class OTPView(View):
                 return redirect("users:login")
 
             token = OTPToken.objects.filter(user=user, otp=code).order_by("-otp_expire_at").first()
-            if False and not token:
+            if not token:
                 messages.error(request, "کد OTP نامعتبر است.")
                 return render(request, "otp_form.html", {"form": OTPForm()})
-            if False and token.otp_expire_at and token.otp_expire_at < timezone.now():
+            if token.otp_expire_at and token.otp_expire_at < timezone.now():
                 messages.error(request, "کد منقضی شده است. ارسال مجدد را بزنید.")
                 return render(request, "otp_form.html", {"form": OTPForm()})
 
@@ -214,7 +213,8 @@ def dashboard_patient(request):
         specialties = list(Specialty.objects.all())
 
         if doctor_id and doctor_id.isdigit():
-            selected_doctor = Doctor.objects.select_related("specialty").filter(pk=int(doctor_id), is_active=True).first()
+            selected_doctor = Doctor.objects.select_related("specialty").filter(pk=int(doctor_id),
+                                                                                is_active=True).first()
             if selected_doctor and Slot:
                 free_slots = list(
                     Slot.objects.filter(doctor=selected_doctor, is_active=True).order_by("start")[:50]
@@ -224,8 +224,8 @@ def dashboard_patient(request):
     if Slot and hasattr(Slot, "booked_by"):
         my_appointments = list(
             Slot.objects.select_related("doctor", "doctor__specialty")
-                        .filter(booked_by=request.user)
-                        .order_by("-booked_at", "-start")[:50]
+            .filter(booked_by=request.user)
+            .order_by("-booked_at", "-start")[:50]
         )
 
     wallet_balance = None

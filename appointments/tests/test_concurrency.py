@@ -1,14 +1,11 @@
 import threading
 
-from django.http import HttpResponse, HttpResponseBadRequest
-from django.shortcuts import render
-from django.test import TestCase, RequestFactory, TransactionTestCase
+from django.test import RequestFactory, TransactionTestCase
 
 from django.contrib.auth import get_user_model
 
 from appointments.models import Slot
 from appointments.services import reserve_slot
-from appointments.views import slot_book
 from doctors.management.commands.seed_doctors import Command
 from doctors.models import Doctor
 

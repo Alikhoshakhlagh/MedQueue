@@ -7,6 +7,9 @@ from .models import Doctor, Slot
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
+from .services import reserve_slot
+
+
 # ----- Slot Management -----
 @require_http_methods(["GET", "POST"])
 @login_required
@@ -72,6 +75,7 @@ def slot_book(request, pk):
     if getattr(request.user, "role", "") != "patient":
         return HttpResponseForbidden("فقط بیمار می‌تواند نوبت رزرو کند.")
 
+    reserve_slot(pk, request.user.id)
     s.booked_by = request.user
     # s.booked_at = timezone.now()
     s.is_active = False
