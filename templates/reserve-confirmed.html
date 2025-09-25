@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}رزرو نوبت موفق{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-md-6 col-lg-4">
+    <div class="card p-4 text-center">
+      <h5 class="mb-3 text-success">رزرو نوبت با موفقیت ثبت شد ✅</h5>
+      <p class="mb-4">
+        نوبت شما با موفقیت تایید شد. برای مشاهده جزئیات یا رزروهای دیگر، می‌توانید گزینه‌های زیر را انتخاب کنید.
+      </p>
+      <div class="d-grid gap-2">
+        <!-- مشاهده نوبت‌های من -->
+        <a href="{% url 'users:dashboard_patient' %}" class="btn btn-primary">
+          مشاهده نوبت‌های من
+        </a>
+
+        <!-- بازگشت به صفحه اصلی -->
+        <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+          بازگشت به صفحه اصلی
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

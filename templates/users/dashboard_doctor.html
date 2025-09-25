@@ -42,7 +42,7 @@
     {% if doctor %}
       <div class="card p-3">
         <h5 class="mb-2">ساخت نوبت جدید</h5>
-        <form method="post" action="/doctors/api/slots/" class="row gy-2 gx-2 align-items-end">
+        <form method="post" action="/appointments/api/slots/" class="row gy-2 gx-2 align-items-end">
           {% csrf_token %}
           <input type="hidden" name="doctor" value="{{ doctor.id }}">
           <div class="col-12 col-md-5">

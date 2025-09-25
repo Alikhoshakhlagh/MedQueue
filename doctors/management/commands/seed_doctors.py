@@ -6,7 +6,8 @@ from decimal import Decimal
 import random
 from datetime import timedelta
 
-from doctors.models import Specialty, Doctor, Slot
+from appointments.models import Slot
+from doctors.models import Specialty, Doctor
 from django.contrib.auth import get_user_model
 
 User = get_user_model()

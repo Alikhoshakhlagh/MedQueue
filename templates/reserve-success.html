@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}رزرو موقت{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-md-6 col-lg-4">
+    <div class="card p-4 text-center">
+      <h5 class="mb-3 text-warning">نوبت موقتاً برای شما ثبت شد ⏳</h5>
+      <p class="mb-4">
+        برای نهایی کردن رزرو و کسر مبلغ از کیف پول، روی دکمه زیر بزنید.
+      </p>
+      <div class="d-grid gap-2">
+        <a href="{% url 'appointments:reserve_slot' slot.id %}" class="btn btn-success">
+          نهایی کردن رزرو
+        </a>
+        <a href="{% url 'users:dashboard' %}" class="btn btn-secondary">
+          بازگشت به داشبورد
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
