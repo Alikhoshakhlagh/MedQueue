@@ -1,5 +1,7 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+
+from MedQueue.settings import AUTH_USER_MODEL
 from doctors.models import Doctor
 
 
@@ -14,7 +16,7 @@ class Slot(models.Model):
     start = models.DateTimeField()
     end = models.DateTimeField()
     booked_by = models.ForeignKey(
-        'users.CustomUser',
+        AUTH_USER_MODEL,
         null=True, blank=True,
         on_delete=models.SET_NULL,
         related_name="booked_slots"
