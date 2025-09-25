@@ -1,6 +1,6 @@
 HI
 # How to run this project
-## Option A) Run with Docker (recommended)
+## Run with Docker
 
 1) Create `.env` :
         # Django
