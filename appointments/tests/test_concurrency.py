@@ -5,7 +5,7 @@ from django.test import RequestFactory, TransactionTestCase
 from django.contrib.auth import get_user_model
 
 from appointments.models import Slot
-from appointments.services import reserve_slot
+from appointments.services import reserve_slot_backend
 from doctors.management.commands.seed_doctors import Command
 from doctors.models import Doctor
 
@@ -51,7 +51,7 @@ class ConcurrentReservationTest(TransactionTestCase):
 
         def reserve_slot_tester(user_id, result_key):
             barrier.wait()
-            self.results[result_key] = reserve_slot(slot_id, user_id)
+            self.results[result_key] = reserve_slot_backend(slot_id, user_id)
 
         threads = [threading.Thread()] * self.num_patients
         for i in range(self.num_patients):

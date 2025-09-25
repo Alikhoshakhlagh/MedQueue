@@ -6,11 +6,12 @@ from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseForbid
 from .models import Doctor, Slot
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
+from payments.models import Wallet, Transaction
+from django.contrib import messages
+from decimal import Decimal
+from payments.models import TransactionType
 
-from .services import reserve_slot
 
-
-# ----- Slot Management -----
 @require_http_methods(["GET", "POST"])
 @login_required
 def slots_list_create(request):
@@ -66,46 +67,79 @@ def slots_list_create(request):
     }, status=201)
 
 
+@login_required
+@transaction.atomic
+def reserve_slot(request, slot_id):
+    slot = get_object_or_404(Slot, id=slot_id)
+    if slot.status != "unreserved":
+        return render(request, "reserve-failed.html", {"message": "این نوبت دیگر در دسترس نیست."})
+
+    slot.status = "pending"
+    slot.booked_by = request.user
+    slot.save()
+
+    patient_wallet = Wallet.objects.select_for_update().get(user=request.user)
+    doctor_wallet = Wallet.objects.select_for_update().get(user=slot.doctor.user)
+
+    price = slot.doctor.fee
+    if patient_wallet.balance >= price:
+        Transaction.objects.create(
+            origin_wallet=patient_wallet,
+            destination_wallet=doctor_wallet,
+            transaction_type=TransactionType.DEBIT,
+            amount=Decimal(price),
+            description=f"پرداخت هزینه نوبت {slot.id}"
+        )
+
+        slot.status = "reserved"
+        slot.patient = request.user
+        slot.save()
+
+        return render(request, "reserve-confirmed.html", {"slot": slot})
+
+    else:
+        return render(request, "reserve-success.html", {"slot": slot})
+
+
+# Slot's by Role
 @require_http_methods(["POST"])
 @login_required
 def slot_book(request, pk):
     s = get_object_or_404(Slot, pk=pk)
-    if not s.is_active or s.status != "unreserved":
+
+    if not s.is_active or s.booked_by_id != request.user.id or s.status == "reserved":
         return HttpResponseBadRequest("این نوبت در دسترس نیست.")
+
     if getattr(request.user, "role", "") != "patient":
         return HttpResponseForbidden("فقط بیمار می‌تواند نوبت رزرو کند.")
 
-    reserve_slot(pk, request.user.id)
+    doctor = s.doctor
+    fee = doctor.fee
+    if fee is None:
+        return HttpResponseBadRequest("هزینه نوبت مشخص نشده است.")
+
+    try:
+        wallet = Wallet.objects.get(user_id=request.user.id)
+        destination_wallet = Wallet.objects.get(user_id=doctor.user_id)
+    except Wallet.DoesNotExist:
+        return HttpResponseBadRequest("کیف پول یافت نشد.")
+
+    try:
+        Transaction.objects.create(
+            origin_wallet=wallet,
+            destination_wallet=destination_wallet,
+            transaction_type=TransactionType.DEBIT,
+            amount=Decimal(fee),
+            description=f"پرداخت هزینه نوبت {s.id}"
+        )
+    except Exception as e:
+        return HttpResponseBadRequest("موجودی کافی نمی باشد!")
+
     s.booked_by = request.user
-    # s.booked_at = timezone.now()
+    s.booked_at = timezone.now()
     s.is_active = False
-    s.status = "pending"
     s.save()
-    return render(request, "reserve-success.html", { })
 
-@login_required
-# TO DO
-#  ابنجا مربوط به درگاه پرداخت هست که باید در درگاه پرداخت این ای پی آی کال بشه
-def payment_success(request, slot_id):
-    s = get_object_or_404(Slot, pk=slot_id, booked_by=request.user, status="pending")
-    
-    s.status = "reserved"
-    s.save()
-    
-    return render(request, "reserve-confirmed.html", {"slot": s})
+    messages.success(request, "رزرو نوبت با موفقیت انجام شد!")
 
-# @require_http_methods(["POST"])
-# @login_required
-# def slot_unbook(request, pk):
-#     s = get_object_or_404(Slot, pk=pk)
-#     if not s.is_active or s.status != "unreserved":
-#         return HttpResponseBadRequest("این نوبت در دسترس نیست.")
-#     if getattr(request.user, "role", "") != "patient":
-#         return HttpResponseForbidden("فقط بیمار می‌تواند نوبت رزرو کند.")
-
-#     s.booked_by = None
-#     # s.booked_at = timezone.now()
-#     s.is_active = True
-#     s.status = "unreserved"
-#     s.save()
-#     return redirect(request, "reserve-success.html", { })
+    return redirect("users:dashboard_patient")

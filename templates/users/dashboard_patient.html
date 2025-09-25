@@ -78,7 +78,7 @@
                 <td>{{ s.end|date:"Y-m-d H:i" }}</td>
                   <td>{{ selected_doctor.fee }}</td>
                 <td class="text-end">
-                  <form method="post" action="/appointments/api/slots/{{ s.id }}/book/">
+                  <form method="post" action="/appointments/reserve_slot/{{ s.id }}/">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-success btn-sm">رزرو نوبت</button>
                   </form>

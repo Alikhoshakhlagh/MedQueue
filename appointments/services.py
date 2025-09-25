@@ -20,7 +20,7 @@ def _reserve_slot_transaction(slot_id):
     return slot
 
 
-def reserve_slot(slot_id, user_id):
+def reserve_slot_backend(slot_id, user_id):
     if not redis_client.set(slot_id, user_id, ex=RESERVE_ULTIMATUM, nx=True):
         return None
     try:
