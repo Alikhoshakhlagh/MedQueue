@@ -7,7 +7,7 @@
     <div class="card p-3">
       <h5 class="mb-3">کیف پول</h5>
       <div class="fs-5">
-        موجودی: 
+        موجودی:
         {% if wallet_balance is not None %}
           {{ wallet_balance|floatformat:2 }}
         {% else %} نامشخص {% endif %}
@@ -66,7 +66,7 @@
   <div class="col-12 col-lg-8">
     {% if selected_doctor %}
       <div class="card p-3">
-        <h5 class="mb-2">نوبت‌های آزاد {{ selected_doctor.name }} <span class="text-secondary fs-6">({{ selected_doctor.specialty.name }})</span></h5>
+          <h5 class="mb-2"><span dir="rtl">نوبت‌های آزاد {{ selected_doctor.name }} </span><span class="text-secondary fs-6">({{ selected_doctor.specialty.name }})</span></h5>
         {% if free_slots %}
           <table class="table align-middle">
             <thead><tr><th>#</th><th>شروع</th><th>پایان</th><th>هزینه</th></tr></thead>
@@ -78,7 +78,7 @@
                 <td>{{ s.end|date:"Y-m-d H:i" }}</td>
                   <td>{{ selected_doctor.fee }}</td>
                 <td class="text-end">
-                  <form method="post" action="/appointments/api/slots/{{ s.id }}/book/">
+                  <form method="post" action="/appointments/reserve_slot/{{ s.id }}/">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-success btn-sm">رزرو نوبت</button>
                   </form>

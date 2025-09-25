@@ -19,10 +19,12 @@ class Wallet(models.Model):
     def __str__(self):
         return f"{self.user.username}s wallet"
 
+
 @receiver(post_save, sender=CustomUser)
 def create_user_wallet(sender, instance, created, **kwargs):
     if created:
         Wallet.objects.create(user=instance)
+
 
 class TransactionType(models.TextChoices):
     DEBIT = 'DEBIT', 'Debit'

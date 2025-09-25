@@ -1,6 +1,8 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 
+from MedQueue.settings import AUTH_USER_MODEL
+
 
 class Review(models.Model):
     """
@@ -12,7 +14,7 @@ class Review(models.Model):
         related_name="reviews"
     )
     user = models.ForeignKey(
-        "users.CustomUser",
+        AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="reviews"
     )

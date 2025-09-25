@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+from email.policy import default
 from pathlib import Path
 import environ
 import os
@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'doctors.apps.DoctorsConfig',
     'payments.apps.PaymentsConfig',
     'reviews.apps.ReviewsConfig',
-    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -152,10 +151,18 @@ STORAGES = {
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
+# Environmental Variables
+
+# SMTP settings
 EMAIL_BACKEND = env("EMAIL_BACKEND")
 EMAIL_HOST = env("EMAIL_HOST", default="localhost")
-EMAIL_PORT = env("EMAIL_PORT", default=25)
+EMAIL_PORT = env.int("EMAIL_PORT", default=25)
 EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS")
 EMAIL_HOST_USER = env("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
+
+# Redis settings
+REDIS_HOST = env("REDIS_HOST", default="redis")
+REDIS_PORT = env.int("REDIS_PORT", default=6379)
+REDIS_DB = env("REDIS_DB", default=0)

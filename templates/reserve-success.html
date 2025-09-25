@@ -11,9 +11,10 @@
         برای نهایی کردن رزرو و کسر مبلغ از کیف پول، روی دکمه زیر بزنید.
       </p>
       <div class="d-grid gap-2">
-        <a href="{% url 'appointments:reserve_slot' slot.id %}" class="btn btn-success">
-          نهایی کردن رزرو
-        </a>
+        <form action="{% url 'appointments:slot_book' slot.id %}" method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-success w-100">نهایی کردن رزرو</button>
+        </form>
         <a href="{% url 'users:dashboard' %}" class="btn btn-secondary">
           بازگشت به داشبورد
         </a>

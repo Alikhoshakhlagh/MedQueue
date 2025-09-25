@@ -11,6 +11,7 @@ from django.contrib import messages
 from decimal import Decimal
 from payments.models import TransactionType
 
+
 @require_http_methods(["GET", "POST"])
 @login_required
 def slots_list_create(request):
@@ -66,54 +67,47 @@ def slots_list_create(request):
     }, status=201)
 
 
-
 @login_required
 @transaction.atomic
 def reserve_slot(request, slot_id):
     slot = get_object_or_404(Slot, id=slot_id)
     if slot.status != "unreserved":
-        return render(request, "appointments/reserve_failed.html", {"message": "این نوبت دیگر در دسترس نیست."})
+        return render(request, "reserve-failed.html", {"message": "این نوبت دیگر در دسترس نیست."})
 
     slot.status = "pending"
+    slot.booked_by = request.user
     slot.save()
 
     patient_wallet = Wallet.objects.select_for_update().get(user=request.user)
     doctor_wallet = Wallet.objects.select_for_update().get(user=slot.doctor.user)
 
-    if patient_wallet.balance >= slot.price:
-        patient_wallet.balance -= slot.price
-        doctor_wallet.balance += slot.price
-
-        patient_wallet.save()
-        doctor_wallet.save()
-
+    price = slot.doctor.fee
+    if patient_wallet.balance >= price:
         Transaction.objects.create(
-            from_user=request.user,
-            to_user=slot.doctor.user,
-            amount=slot.price,
-            status="success"
+            origin_wallet=patient_wallet,
+            destination_wallet=doctor_wallet,
+            transaction_type=TransactionType.DEBIT,
+            amount=Decimal(price),
+            description=f"پرداخت هزینه نوبت {slot.id}"
         )
 
         slot.status = "reserved"
         slot.patient = request.user
         slot.save()
 
-        return render(request, "appointments/reserve_success.html", {"slot" : slot})
+        return render(request, "reserve-confirmed.html", {"slot": slot})
 
     else:
-        slot.status = "unreserved"
-        slot.save()
-
-        return render(request, "appointments/reserve_failed.html", {"slot" : slot})
+        return render(request, "reserve-success.html", {"slot": slot})
 
 
-#Slot's by Role
+# Slot's by Role
 @require_http_methods(["POST"])
 @login_required
 def slot_book(request, pk):
     s = get_object_or_404(Slot, pk=pk)
 
-    if not s.is_active or s.booked_by_id is not None:
+    if not s.is_active or s.booked_by_id != request.user.id or s.status == "reserved":
         return HttpResponseBadRequest("این نوبت در دسترس نیست.")
 
     if getattr(request.user, "role", "") != "patient":
