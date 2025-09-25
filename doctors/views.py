@@ -1,12 +1,14 @@
+from django.contrib import messages
 from django.db import models
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.utils.dateparse import parse_datetime
 from decimal import Decimal, ROUND_HALF_UP
 from django.utils import timezone
 
+from payments.models import Wallet, Transaction, TransactionType
 from .models import Doctor, Specialty, Slot
 
 
@@ -155,16 +157,16 @@ def slots_list_create(request):
         s.save()
     except Exception as e:
         return HttpResponseBadRequest(str(e))
-    return JsonResponse({
-        "id": s.id, "doctor": s.doctor_id,
-        "start": s.start.isoformat(), "end": s.end.isoformat(),
-        "is_active": s.is_active
-    }, status=201)
+
+    messages.success(request, "ساخت نوبت جدید با موفقیت انجام شد!")
+
+    return redirect("users:dashboard_doctor")
 
 @require_http_methods(["POST"])
 @login_required
 def slot_deactivate(request, pk):
     s = get_object_or_404(Slot, pk=pk)
+
     if not (request.user.is_staff or (hasattr(s.doctor, "user") and s.doctor.user_id == request.user.id)):
         return HttpResponseForbidden("Not allowed.")
     s.is_active = False
@@ -177,13 +179,41 @@ def slot_deactivate(request, pk):
 @login_required
 def slot_book(request, pk):
     s = get_object_or_404(Slot, pk=pk)
+
     if not s.is_active or s.booked_by_id is not None:
         return HttpResponseBadRequest("این نوبت در دسترس نیست.")
+
     if getattr(request.user, "role", "") != "patient":
         return HttpResponseForbidden("فقط بیمار می‌تواند نوبت رزرو کند.")
+
+    doctor = s.doctor
+    fee = doctor.fee
+    if fee is None:
+        return HttpResponseBadRequest("هزینه نوبت مشخص نشده است.")
+
+
+    try:
+        wallet = Wallet.objects.get(user_id=request.user.id)
+        destination_wallet = Wallet.objects.get(user_id=doctor.user_id)
+    except Wallet.DoesNotExist:
+        return HttpResponseBadRequest("کیف پول یافت نشد.")
+
+    try:
+        Transaction.objects.create(
+            origin_wallet=wallet,
+            destination_wallet=destination_wallet,
+            transaction_type=TransactionType.DEBIT,
+            amount=Decimal(fee),
+            description=f"پرداخت هزینه نوبت {s.id}"
+        )
+    except Exception as e:
+        return HttpResponseBadRequest("موجودی کافی نمی باشد!")
 
     s.booked_by = request.user
     s.booked_at = timezone.now()
     s.is_active = False
     s.save()
-    return JsonResponse({"ok": True, "id": s.id, "booked_at": s.booked_at.isoformat()})
+
+    messages.success(request, "رزرو نوبت با موفقیت انجام شد!")
+
+    return redirect("users:dashboard_patient")
